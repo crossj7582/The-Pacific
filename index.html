@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Force 17 — Pacific Carrier Command</title>
+
+<style>
+:root{
+  --paper:#e8dfc7;
+  --paper2:#d7ccb0;
+  --ink:#25251f;
+  --olive:#505b49;
+  --sea:#7e9695;
+  --sea2:#9bb0aa;
+  --red:#7d3b31;
+  --gold:#c9a13b;
+  --line:#746d5b;
+  --dark:#26343a;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#a9a18e;
+  color:var(--ink);
+  font-family:Georgia,serif;
+}
+
+button{
+  font:inherit;
+}
+
+#game{
+  max-width:1240px;
+  margin:auto;
+  background:var(--paper);
+  min-height:100vh;
+  padding:14px;
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  border-bottom:3px double var(--ink);
+  padding-bottom:12px;
+}
+
+.kicker,
+.mono{
+  font:700 10px/1.3 monospace;
+  letter-spacing:.11em;
+}
+
+h1{
+  font-size:26px;
+  margin:3px 0 4px;
+}
+
+.sub{
+  font:12px monospace;
+}
+
+.stats{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+}
+
+.stat{
+  min-width:75px;
+  text-align:center;
+  background:var(--paper2);
+  border:1px solid var(--line);
+  padding:6px 9px;
+  font:10px monospace;
+}
+
+.stat b{
+  display:block;
+  font-size:18px;
+  margin-top:2px;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:245px minmax(0,1fr);
+  gap:12px;
+  margin-top:12px;
+}
+
+.panel{
+  background:#ddd3b8;
+  border:1px solid var(--line);
+  padding:10px;
+}
+
+.panel h2{
+  font:900 12px monospace;
+  letter-spacing:.09em;
+  margin:0 0 8px;
+}
+
+.challenge-board{
+  display:grid;
+  gap:6px;
+}
+
+.challenge{
+  width:100%;
+  border:1px solid var(--line);
+  background:#eee6d2;
+  text-align:left;
+  padding:9px;
+  cursor:pointer;
+}
+
+.challenge:hover{
+  background:#d6cbb0;
+}
+
+.challenge.locked{
+  opacity:.48;
+  cursor:not-allowed;
+}
+
+.challenge.done{
+  border-left:6px solid var(--olive);
+}
+
+.challenge.active{
+  outline:2px solid var(--gold);
+}
+
+.challenge strong{
+  display:block;
+  font:800 11px monospace;
+}
+
+.challenge span{
+  font-size:11px;
+}
+
+.notice{
+  font:10px/1.4 monospace;
+  background:#eee6d2;
+  border:1px dashed var(--line);
+  padding:8px;
+  margin-bottom:8px;
+}
+
+.main{
+  display:grid;
+  gap:10px;
+}
+
+.mission{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 320px;
+  gap:10px;
+}
+
+.mission-title{
+  font:900 15px monospace;
+  letter-spacing:.05em;
+  margin-bottom:7px;
+}
+
+.brief{
+  font-size:14px;
+  line-height:1.42;
+}
+
+.radio{
+  margin-top:8px;
+  padding:8px;
+  background:#ece3cc;
+  border-left:4px solid var(--olive);
+  font:11px/1.45 monospace;
+}
+
+.asset{
+  height:190px;
+  border:1px solid #4f493d;
+  overflow:hidden;
+  background:#555;
+  position:relative;
+}
+
+.asset-window{
+  position:absolute;
+  inset:0;
+  background-image:url('ww2_carrier_assets.png');
+  background-repeat:no-repeat;
+  background-size:300% 200%;
+  background-color:#555;
+}
+
+.asset-yorktown{
+  background-position:0 0;
+}
+
+.asset-sbd{
+  background-position:50% 0;
+}
+
+.asset-enterprise{
+  background-position:100% 0;
+}
+
+.asset-zuikaku{
+  background-size:200% 200%;
+  background-position:0 100%;
+}
+
+.asset-hiryu{
+  background-size:200% 200%;
+  background-position:100% 100%;
+}
+
+.asset-label{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  background:rgba(20,20,17,.82);
+  color:#eee6d2;
+  padding:5px 7px;
+  font:700 9px monospace;
+  letter-spacing:.05em;
+}
+
+.credit{
+  font:9px monospace;
+  margin-top:4px;
+}
+
+.map-panel{
+  background:var(--sea);
+  border:2px solid var(--ink);
+  padding:8px;
+}
+
+.map-head{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:6px;
+}
+
+.map{
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  gap:3px;
+}
+
+.tile{
+  aspect-ratio:1.08;
+  background:var(--sea2);
+  border:1px solid #526865;
+  position:relative;
+  cursor:pointer;
+  color:#162321;
+  padding:3px;
+  font:9px monospace;
+}
+
+.tile:hover,
+.tile.selected{
+  outline:3px solid var(--gold);
+  z-index:2;
+}
+
+.coord{
+  position:absolute;
+  top:3px;
+  left:3px;
+}
+
+.token{
+  text-align:center;
+  margin-top:14px;
+  font-size:19px;
+}
+
+.carrier-token{
+  color:#233f4b;
+}
+
+.enemy-token{
+  color:#702e29;
+}
+
+.plane-token{
+  font-size:15px;
+}
+
+.range{
+  position:absolute;
+  inset:18% 18%;
+  border:1px dashed rgba(40,50,47,.5);
+  border-radius:50%;
+}
+
+.options{
+  display:grid;
+  gap:7px;
+  margin-top:9px;
+}
+
+.option{
+  border:1px solid var(--line);
+  background:#efe7d4;
+  padding:10px;
+  text-align:left;
+  cursor:pointer;
+  font:12px/1.3 Georgia;
+}
+
+.option:hover{
+  background:#d8ccb1;
+}
+
+.option.selected{
+  background:#cec4a9;
+}
+
+.option.correct{
+  outline:2px solid #435a43;
+}
+
+.option.wrong{
+  outline:2px solid var(--red);
+}
+
+.action{
+  border:1px solid var(--ink);
+  background:var(--olive);
+  color:#f5efdd;
+  padding:10px 13px;
+  margin-top:9px;
+  cursor:pointer;
+  font:700 11px monospace;
+}
+
+.action:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.feedback{
+  margin-top:8px;
+  min-height:20px;
+  font:700 11px monospace;
+}
+
+.success{
+  color:#425941;
+}
+
+.failure{
+  color:var(--red);
+}
+
+.log{
+  height:110px;
+  overflow:auto;
+  border-top:1px solid var(--line);
+  padding-top:6px;
+  margin-top:7px;
+  font:10px/1.45 monospace;
+}
+
+.forces{
+  font-size:12px;
+  line-height:1.45;
+}
+
+.forces b{
+  font-family:monospace;
+}
+
+.footer{
+  font:9px monospace;
+  color:#555;
+  margin-top:8px;
+}
+
+@media(max-width:850px){
+
+  header{
+    display:block;
+  }
+
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  .mission{
+    grid-template-columns:1fr;
+  }
+
+  .asset{
+    height:210px;
+  }
+
+  .stats{
+    margin-top:10px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<header>
+
+<div>
+
+<div class="kicker">
+UNITED STATES PACIFIC FLEET • COMMAND TRAINING
+</div>
+
+<h1>
+TASK FORCE 17 — PACIFIC CARRIER COMMAND
+</h1>
+
+<div class="sub">
+1942 MOCK BATTLE • COMMANDER IN TRAINING • HISTORICAL DOCTRINE EXERCISE
+</div>
+
+</div>
+
+<div class="stats">
+
+<div class="stat">
+SCORE
+<b id="score">0</b>
+</div>
+
+<div class="stat">
+AIRCRAFT
+<b id="air">42</b>
+</div>
+
+<div class="stat">
+CARRIER
+<b id="carrier">100%</b>
+</div>
+
+</div>
+
+</header>
+
+
+<div class="layout">
+
+<aside class="panel">
+
+<h2>
+COMMANDER'S CHALLENGE BOARD
+</h2>
+
+<div class="notice">
+Challenge 1 is mandatory. After it is completed, choose the remaining challenges in any order. Every challenge requires one tactical choice and one map action.
+</div>
+
+<div class="challenge-board" id="board"></div>
+
+<div class="footer">
+Visuals are generated historical-style reconstructions. The tactical grid is a teaching abstraction, not a geographic chart.
+</div>
+
+</aside>
+
+
+<main class="main">
+
+
+<section class="panel">
+
+<div class="mission">
+
+<div>
+
+<div class="mission-title" id="missionTitle"></div>
+
+<div class="brief" id="brief"></div>
+
+<div class="radio" id="radio"></div>
+
+<div class="options" id="options"></div>
+
+<div class="feedback" id="feedback" aria-live="polite"></div>
+
+<button
+class="action"
+id="submit"
+type="button"
+disabled>
+SUBMIT COMMAND
+</button>
+
+</div>
+
+
+<div>
+
+<div class="asset">
+
+<div
+id="assetWindow"
+class="asset-window asset-yorktown">
+</div>
+
+<div
+id="assetLabel"
+class="asset-label">
+USS YORKTOWN • U.S. CARRIER • 1942
+</div>
+
+</div>
+
+<div class="credit">
+Generated visual reconstruction for classroom use — not an archival photograph.
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<section class="panel">
+
+<h2>
+TACTICAL OPERATIONS GRID — SELECT A SECTOR
+</h2>
+
+<div class="map-panel">
+
+<div class="map-head">
+
+<span class="mono">
+NORTH ↑ • 8 × 5 COMMAND GRID
+</span>
+
+<span
+class="mono"
+id="mapInstruction">
+Select the sector indicated by the challenge.
+</span>
+
+</div>
+
+<div
+class="map"
+id="map">
+</div>
+
+</div>
+
+</section>
+
+
+
+<section class="panel">
+
+<h2>
+RADIO / COMMAND LOG
+</h2>
+
+<div
+class="brief"
+id="status">
+</div>
+
+<div
+class="log"
+id="log">
+</div>
+
+</section>
+
+
+
+<section class="panel">
+
+<h2>
+AVAILABLE FORCES
+</h2>
+
+<div class="forces">
+
+<b>AIR GROUP</b> —
+12 F4F Wildcats •
+18 SBD Dauntless •
+12 TBD Devastators
+
+<br>
+
+<b>SURFACE SCREEN</b> —
+cruisers for heavy surface/AA support •
+destroyers for outer screen, ASW, rescue and warning duties
+
+<br>
+
+<b>COMMAND DOCTRINE</b> —
+maintain reconnaissance, preserve the carrier, protect the strike, concentrate force at the decisive point, and keep a recovery capability.
+
+</div>
+
+</section>
+
+
+</main>
+
+</div>
+
+</div>
+
+
+<script>
+
+(()=>{
+
+'use strict';
+
+
+const $ = id => document.getElementById(id);
+
+const board = $('board');
+
+const map = $('map');
+
+const missionTitle = $('missionTitle');
+
+const brief = $('brief');
+
+const radio = $('radio');
+
+const options = $('options');
+
+const submit = $('submit');
+
+const feedback = $('feedback');
+
+const status = $('status');
+
+const log = $('log');
+
+const scoreEl = $('score');
+
+const airEl = $('air');
+
+const carrierEl = $('carrier');
+
+const assetWindow = $('assetWindow');
+
+const assetLabel = $('assetLabel');
+
+const mapInstruction = $('mapInstruction');
+
+
+let score = 0;
+
+let air = 42;
+
+let carrier = 100;
+
+let current = 0;
+
+let selectedTile = null;
+
+let selectedChoice = null;
+
+let answered = false;
+
+
+const completed = new Array(7).fill(false);
+
+
+const missions = [
+
+
+{
+
+n:1,
+
+title:'CHALLENGE 1 — LAUNCH THE AIRCRAFT',
+
+visual:'yorktown',
+
+label:'USS YORKTOWN • CARRIER DECK • 1942',
+
+tile:'C3',
+
+radio:'FLIGHT DECK: Wind is favorable only if we bring the ship into the wind. Spotting crews report the deck ready.',
+
+text:'0600. Your first task is to get the air group airborne before the enemy can interfere. Select the launch sector that represents your carrier moving into the wind, then issue the command.',
+
+choices:[
+
+['A — Turn into the wind and begin the launch cycle.','correct'],
+
+['B — Turn across the wind to shorten the distance to the enemy.','wrong'],
+
+['C — Turn away from the wind and launch immediately.','wrong']
+
+]
+
+},
+
+
+{
+
+n:2,
+
+title:'CHALLENGE 2 — POSITION THE BATTLE GROUP',
+
+visual:'enterprise',
+
+label:'U.S. CARRIER TASK FORCE • 1942',
+
+tile:'D3',
+
+radio:'SCREEN COMMAND: Enemy scouts may be nearby. Surface ships report ready. Maintain mutual support.',
+
+text:'Your carrier is the high-value unit. Select the central task-force position, then choose the formation that gives the carrier layered protection without scattering the screen.',
+
+choices:[
+
+['A — Carrier center; cruisers inside; destroyers on the outer screen.','correct'],
+
+['B — Put destroyers inside the formation and cruisers on the outside.','wrong'],
+
+['C — Spread every ship widely to cover the maximum area.','wrong']
+
+]
+
+},
+
+
+{
+
+n:3,
+
+title:'CHALLENGE 3 — FIND THE ENEMY',
+
+visual:'sbd',
+
+label:'SBD DAUNTLESS • RECONNAISSANCE • 1942',
+
+tile:'C3',
+
+radio:'RECON: Possible Japanese force 150–200 miles northwest. Search aircraft have limited endurance.',
+
+text:'You have enough aircraft to make a focused search, not to cover the entire ocean. Select the likely contact sector and use a search pattern that preserves fuel for the strike.',
+
+choices:[
+
+['A — Search a focused northern sector with a complementary second search track.','correct'],
+
+['B — Send every available aircraft in one straight line northwest.','wrong'],
+
+['C — Search only directly ahead of the carrier.','wrong']
+
+]
+
+},
+
+
+{
+
+n:4,
+
+title:'CHALLENGE 4 — BUILD THE STRIKE',
+
+visual:'sbd',
+
+label:'SBD DAUNTLESS • STRIKE AIRCRAFT • 1942',
+
+tile:'F5',
+
+radio:'STRIKE CONTROL: Enemy carriers confirmed. The carrier cannot safely commit every aircraft.',
+
+text:'Your strike must hit the enemy carrier force while retaining fighter protection and a reserve for the carrier. Select the enemy carrier sector and choose the balanced employment of the air group.',
+
+choices:[
+
+['A — Send a balanced strike with fighter escort, dive bombers and torpedo bombers while retaining a reserve.','correct'],
+
+['B — Commit the entire air group so the maximum number of aircraft reaches the target.','wrong'],
+
+['C — Send mostly fighters and only a few bombers.','wrong']
+
+]
+
+},
+
+
+{
+
+n:5,
+
+title:'CHALLENGE 5 — JAPANESE COUNTERATTACK',
+
+visual:'zuikaku',
+
+label:'JAPANESE CARRIER AIR GROUP • 1942',
+
+tile:'E3',
+
+radio:'RADAR: Multiple contacts approaching. Your strike aircraft are still returning. Fighters are available, but not unlimited.',
+
+text:'The Japanese counterattack is now the immediate threat. Select the interception sector and protect the carrier without exhausting your fighter force.',
+
+choices:[
+
+['A — Establish CAP ahead of the carrier while retaining a fighter reserve near the task force.','correct'],
+
+['B — Send every available fighter as far forward as possible.','wrong'],
+
+['C — Keep all fighters on the deck until the enemy is overhead.','wrong']
+
+]
+
+},
+
+
+{
+
+n:6,
+
+title:'CHALLENGE 6 — REPAIR & RECOVER',
+
+visual:'yorktown',
+
+label:'CARRIER DAMAGE CONTROL • 1942',
+
+tile:'C4',
+
+radio:'FLIGHT DECK: A damaged aircraft has fouled the recovery lane. More aircraft are returning.',
+
+text:'A carrier is a cycle of launch, recovery, maintenance and rearming. Select the recovery sector and restore the deck cycle before committing another strike.',
+
+choices:[
+
+['A — Clear the obstruction, reorganize recovery, then resume the launch/recovery cycle.','correct'],
+
+['B — Continue normal recovery without clearing the obstruction.','wrong'],
+
+['C — Launch another full strike before recovering the returning aircraft.','wrong']
+
+]
+
+},
+
+
+{
+
+n:7,
+
+title:"CHALLENGE 7 — COMMANDER'S FINAL DECISION",
+
+visual:'hiryu',
+
+label:'BATTLE DAMAGE • CARRIER WARFARE • 1942',
+
+tile:'B5',
+
+radio:'FLAG BRIDGE: Enemy carrier capability is badly damaged. Your carrier is damaged. Fuel and aircraft are limited. Another force may be nearby.',
+
+text:'The tactical battle is turning in your favor, but the operation is not over. Select the withdrawal corridor that keeps the task force mutually supporting and preserves the carrier.',
+
+choices:[
+
+['A — Recover aircraft, tighten the screen, and withdraw toward a safer operating area.','correct'],
+
+['B — Pursue the damaged enemy regardless of fuel and carrier condition.','wrong'],
+
+['C — Split the task force and send half in pursuit.','wrong']
+
+]
+
+}
+
+];
+
+
+
+function addLog(message){
+
+const d = document.createElement('div');
+
+d.textContent = message;
+
+log.prepend(d);
+
+}
+
+
+
+function renderBoard(){
+
+board.innerHTML='';
+
+missions.forEach((m,i)=>{
+
+const b=document.createElement('button');
+
+b.type='button';
+
+b.className='challenge'
+
++(completed[i]?' done':'')
+
++(i>0&&!completed[0]?' locked':'')
+
++(i===current?' active':'');
+
+
+b.innerHTML=
+
+'<strong>'
+
++m.title
+
++(completed[i]?' ✓':'')
+
++'</strong>'
+
++'<span>'
+
++([
+
+'Launch the air group',
+
+'Protect the carrier',
+
+'Search the contact area',
+
+'Build the strike',
+
+'Defeat the counterattack',
+
+'Restore the carrier cycle',
+
+'Make the final command'
+
+][i])
+
++'</span>';
+
+
+b.addEventListener('click',()=>{
+
+if(i>0&&!completed[0]){
+
+addLog(
+'Challenge 1 must be completed before the other challenges unlock.'
+);
+
+return;
+
+}
+
+current=i;
+
+renderMission();
+
+});
+
+
+board.appendChild(b);
+
+});
+
+}
+
+
+
+function renderMap(){
+
+map.innerHTML='';
+
+for(let r=1;r<=5;r++){
+
+for(let c=0;c<8;c++){
+
+const t=String.fromCharCode(65+c)+r;
+
+const b=document.createElement('button');
+
+b.type='button';
+
+b.className='tile';
+
+b.innerHTML='<span class="coord">'+t+'</span>';
+
+
+if(t===missions[current].tile){
+
+b.innerHTML+='<div class="range"></div>';
+
+
+if(current===4)
+
+b.innerHTML+='<div class="token plane-token">✈</div>';
+
+else if(current===5)
+
+b.innerHTML+='<div class="token carrier-token">⚓</div>';
+
+else if(current===3)
+
+b.innerHTML+='<div class="token enemy-token">◆</div>';
+
+else
+
+b.innerHTML+='<div class="token carrier-token">⚓</div>';
+
+}
+
+
+b.addEventListener('click',()=>{
+
+selectedTile=t;
+
+document
+.querySelectorAll('.tile')
+.forEach(x=>x.classList.remove('selected'));
+
+b.classList.add('selected');
+
+submit.disabled=selectedChoice===null;
+
+mapInstruction.textContent=
+'Selected sector: '+t;
+
+addLog('Sector '+t+' selected.');
+
+});
+
+
+map.appendChild(b);
+
+}
+
+}
+
+}
+
+
+
+function renderVisual(type){
+
+assetWindow.className=
+'asset-window asset-'+type;
+
+
+const labels={
+
+yorktown:
+'USS YORKTOWN • U.S. CARRIER • 1942',
+
+sbd:
+'SBD DAUNTLESS • DIVE BOMBER • 1942',
+
+enterprise:
+'U.S. CARRIER AIR GROUP • 1942',
+
+zuikaku:
+'IJN ZUIKAKU • JAPANESE CARRIER • 1941',
+
+hiryu:
+'IJN HIRYU • BATTLE DAMAGE • 1942'
+
+};
+
+
+assetLabel.textContent=
+labels[type]||'WWII PACIFIC OPERATIONS';
+
+}
+
+
+
+function renderMission(){
+
+const m=missions[current];
+
+missionTitle.textContent=m.title;
+
+brief.textContent=m.text;
+
+radio.textContent=m.radio;
+
+renderVisual(m.visual);
+
+options.innerHTML='';
+
+selectedTile=null;
+
+selectedChoice=null;
+
+answered=false;
+
+submit.disabled=true;
+
+feedback.textContent='';
+
+feedback.className='feedback';
+
+mapInstruction.textContent=
+'Select the sector indicated by the challenge.';
+
+
+m.choices.forEach((c,i)=>{
+
+const b=document.createElement('button');
+
+b.type='button';
+
+b.className='option';
+
+b.textContent=c[0];
+
+
+b.addEventListener('click',()=>{
+
+if(answered)return;
+
+selectedChoice=i;
+
+document
+.querySelectorAll('.option')
+.forEach(x=>x.classList.remove('selected'));
+
+b.classList.add('selected');
+
+submit.disabled=selectedTile===null;
+
+addLog(
+'Command option '
++String.fromCharCode(65+i)
++' selected.'
+);
+
+});
+
+
+options.appendChild(b);
+
+});
+
+
+renderMap();
+
+renderBoard();
+
+}
+
+
+
+function finish(){
+
+missionTitle.textContent=
+'MISSION COMPLETE — COMMAND EVALUATION';
+
+
+brief.innerHTML=
+
+'<b>Final command score:</b> '
+
++score
+
++'/70<br><b>Aircraft remaining:</b> '
+
++air
+
++'<br><b>Carrier condition:</b> '
+
++carrier
+
++'%<br><br>'
+
++(
+
+score>=58 && carrier>=75
+
+?
+
+'COMMAND QUALIFIED — Strong carrier-task-force judgment.'
+
+:
+
+'COMMAND REVIEW REQUIRED — Review reconnaissance, launch conditions, strike composition, CAP, recovery, and carrier preservation.'
+
+);
+
+
+options.innerHTML='';
+
+submit.disabled=true;
+
+feedback.textContent=
+'All seven challenges completed.';
+
+feedback.className=
+'feedback success';
+
+addLog(
+'All seven challenges complete. Final evaluation recorded.'
+);
+
+renderBoard();
+
+}
+
+
+
+submit.addEventListener('click',()=>{
+
+if(
+answered ||
+selectedTile===null ||
+selectedChoice===null
+)return;
+
+
+answered=true;
+
+
+const m=missions[current];
+
+const choiceCorrect=
+m.choices[selectedChoice][1]==='correct';
+
+const tileCorrect=
+selectedTile===m.tile;
+
+
+document
+.querySelectorAll('.option')
+.forEach((b,i)=>{
+
+b.disabled=true;
+
+if(i===selectedChoice)
+
+b.classList.add(
+choiceCorrect?'correct':'wrong'
+);
+
+});
+
+
+if(choiceCorrect&&tileCorrect){
+
+score+=10;
+
+completed[current]=true;
+
+feedback.textContent=
+'COMMAND SUCCESS — Decision and tactical position are sound. +10';
+
+feedback.className=
+'feedback success';
+
+addLog(
+'COMMAND SUCCESS: +10 points.'
+);
+
+
+}
+
+else if(choiceCorrect){
+
+score=Math.max(0,score-1);
+
+carrier=Math.max(20,carrier-3);
+
+completed[current]=true;
+
+feedback.textContent=
+'PARTIAL SUCCESS — Sound doctrine, but the selected sector was inefficient.';
+
+feedback.className='feedback';
+
+addLog(
+'PARTIAL SUCCESS: correct doctrine, inefficient position.'
+);
+
+
+}
+
+else{
+
+score=Math.max(0,score-3);
+
+air=Math.max(0,air-2);
+
+carrier=Math.max(20,carrier-6);
+
+completed[current]=true;
+
+feedback.textContent=
+'COMMAND ERROR — The task force pays a tactical cost.';
+
+feedback.className=
+'feedback failure';
+
+addLog(
+'COMMAND ERROR: aircraft and carrier readiness lost.'
+);
+
+}
+
+
+scoreEl.textContent=score;
+
+airEl.textContent=air;
+
+carrierEl.textContent=carrier+'%';
+
+submit.disabled=true;
+
+renderBoard();
+
+
+if(completed.every(Boolean))
+
+finish();
+
+});
+
+
+
+renderBoard();
+
+renderMission();
+
+addLog(
+'Training exercise initialized. Challenge 1 is mandatory.'
+);
+
+})();
+
+</script>
+
+</body>
+</html>
